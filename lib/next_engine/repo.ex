@@ -1,4 +1,6 @@
 defmodule NextEngine.Repo do
+  require IEx
+
   def run(query) do
     post(query)
   end
@@ -7,15 +9,20 @@ defmodule NextEngine.Repo do
   defp post(query) do
     HTTPoison.start()
 
-    generate_url(query.path)
-    |> HTTPoison.post!({:form, query.params}, [], recv_timeout: @recv_timeout)
+    params = build_params(query.schema |> fields(), query.conds)
+
+    res =
+      generate_url(query.path)
+      |> HTTPoison.post!({:form, params}, [], recv_timeout: @recv_timeout)
 
     # TODO: デコードする
   end
 
   defp generate_url(path), do: host() <> path
 
-  defp params(fields, conds), do: basic_params() ++ [fields: fields] ++ conds
+  defp build_params(fields, conds) do
+    basic_params() ++ [fields: fields] ++ conds
+  end
 
   defp basic_params do
     [
@@ -24,6 +31,12 @@ defmodule NextEngine.Repo do
       wait_flag: 1,
       limit: 10000
     ]
+  end
+
+  defp fields(schema) do
+    schema
+    |> Map.keys()
+    |> Enum.join(", ")
   end
 
   def access_token, do: System.get_env("NEXT_ENGINE_ACCESS_TOKEN")

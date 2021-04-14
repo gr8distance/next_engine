@@ -26,7 +26,7 @@ defmodule NextEngine.Repo do
     ]
   end
 
-  defp access_token, do: "なんかトークンを取得してくる"
-  defp refresh_token, do: "なんかトークンを更新する"
+  def access_token, do: System.get_env("NEXT_ENGINE_ACCESS_TOKEN")
+  def refresh_token, do: System.get_env("NEXT_ENGINE_REFRESH_TOKEN")
   defp host, do: "https://api.next-engine.org"
 end

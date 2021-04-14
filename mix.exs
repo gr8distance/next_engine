@@ -22,7 +22,8 @@ defmodule NextEngine.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.8"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:exvcr, "~> 0.11", only: :test}
     ]
   end
 end

@@ -9,14 +9,14 @@ defmodule NextEngine.Decoder do
     %{json | "data" => decode_data(json["data"], schema)}
   end
 
-  def decode_data(data, schema) do
+  defp decode_data(data, schema) do
     data
     |> Enum.map(fn datum ->
       convert_all_values(datum, schema)
     end)
   end
 
-  def convert_all_values(map, schema) do
+  defp convert_all_values(map, schema) do
     map
     |> Map.keys()
     |> Enum.reduce(%{}, fn key, acm ->
@@ -24,11 +24,13 @@ defmodule NextEngine.Decoder do
     end)
   end
 
-  def convert_value(nil, _), do: nil
-  def convert_value(value, :string), do: value
-  def convert_value(value, :datetime), do: Timex.parse!(value, "{YYYY}-{0M}-{0D} {h24}:{0m}:{0s}")
+  defp convert_value(nil, _), do: nil
+  defp convert_value(value, :string), do: value
 
-  def convert_value(value, :integer) do
+  defp convert_value(value, :datetime),
+    do: Timex.parse!(value, "{YYYY}-{0M}-{0D} {h24}:{0m}:{0s}")
+
+  defp convert_value(value, :integer) do
     if String.match?(value, ~r/[0-9]*\.[0-9]*/) do
       String.to_float(value)
     else

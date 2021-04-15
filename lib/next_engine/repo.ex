@@ -1,6 +1,8 @@
 defmodule NextEngine.Repo do
   require IEx
 
+  alias NextEngine.Decoder
+
   def run(query) do
     post(query)
   end
@@ -11,11 +13,10 @@ defmodule NextEngine.Repo do
 
     params = build_params(query.schema |> fields(), query.conds)
 
-    res =
-      generate_url(query.path)
-      |> HTTPoison.post!({:form, params}, [], recv_timeout: @recv_timeout)
-
-    # TODO: デコードする
+    generate_url(query.path)
+    |> HTTPoison.post!({:form, params}, [], recv_timeout: @recv_timeout)
+    |> Map.get(:body)
+    |> Decoder.decode(query.schema)
   end
 
   defp generate_url(path), do: host() <> path

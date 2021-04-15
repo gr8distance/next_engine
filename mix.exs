@@ -23,7 +23,8 @@ defmodule NextEngine.MixProject do
     [
       {:httpoison, "~> 1.8"},
       {:jason, "~> 1.2"},
-      {:exvcr, "~> 0.11", only: :test}
+      {:exvcr, "~> 0.11", only: :test},
+      {:timex, "~> 3.0"}
     ]
   end
 end

@@ -3,35 +3,35 @@ defmodule NextEngine.Repo do
 
   alias NextEngine.Decoder
 
-  def run(query) do
-    post(query)
-  end
-
-  @recv_timeout 50_000
-  defp post(query) do
-    HTTPoison.start()
-
-    params = build_params(query.schema |> fields(), query.conds)
+  def run(query, access_token: access_token, refresh_token: refresh_token) do
+    params =
+      build_params(
+        fields(query.schema),
+        query.conds,
+        access_token: access_token,
+        refresh_token: refresh_token
+      )
 
     generate_url(query.path)
-    |> HTTPoison.post!({:form, params}, [], recv_timeout: @recv_timeout)
+    |> post(params)
     |> Map.get(:body)
     |> Decoder.decode(query.schema)
   end
 
-  defp generate_url(path), do: host() <> path
-
-  defp build_params(fields, conds) do
-    basic_params() ++ [fields: fields] ++ conds
+  @recv_timeout 50_000
+  defp post(url, params) do
+    HTTPoison.start()
+    HTTPoison.post!(url, {:form, params}, [], recv_timeout: @recv_timeout)
   end
 
-  defp basic_params do
-    [
-      access_token: access_token(),
-      refresh_token: refresh_token(),
-      wait_flag: 1,
-      limit: 10000
-    ]
+  defp generate_url(path), do: host() <> path
+
+  defp build_params(fields, conds, opts) do
+    basic_params(opts) ++ [fields: fields] ++ conds
+  end
+
+  defp basic_params(opts) do
+    [wait_flag: 1, limit: 10000] ++ opts
   end
 
   defp fields(schema) do
@@ -40,7 +40,5 @@ defmodule NextEngine.Repo do
     |> Enum.join(", ")
   end
 
-  def access_token, do: System.get_env("NEXT_ENGINE_ACCESS_TOKEN")
-  def refresh_token, do: System.get_env("NEXT_ENGINE_REFRESH_TOKEN")
   defp host, do: "https://api.next-engine.org"
 end

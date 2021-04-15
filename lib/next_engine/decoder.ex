@@ -2,11 +2,17 @@ defmodule NextEngine.Decoder do
   require IEx
 
   def decode(body, schema) do
-    json =
-      body
-      |> Jason.decode!()
+    body
+    |> Jason.decode!()
+    |> decode_response(schema)
+  end
 
-    %{json | "data" => decode_data(json["data"], schema)}
+  defp decode_response(result, schema) do
+    if result["result"] == "success" do
+      %{result | "data" => decode_data(result["data"], schema)}
+    else
+      result
+    end
   end
 
   defp decode_data(data, schema) do
